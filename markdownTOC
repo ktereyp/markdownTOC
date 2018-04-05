@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+
+if [ $# -ne 1 ];then
+    echo "usage :"
+    echo "  need one parameter which is the markdown file"
+    echo ""
+    echo "  markdownTOC your_markdown_file"
+    exit 1
+fi
+
+input=$1
+output="/tmp/.markddown_tmp1"
+
+cat ${input} | awk '/^#+.*/ {
+    sharpLength = gsub("#","")
+    gsub("^ *", "")
+    gsub(" *$", "")
+    currentIndex = -1;
+    for(aIndex in sharpLengthArray){
+        if(sharpLengthArray[aIndex] >= sharpLength){
+            currentIndex = aIndex
+            break
+        }
+        currentIndex = aIndex+1
+    }
+
+    if(currentIndex == -1) {
+        currentIndex = 0;
+    }
+    sharpLengthArray[currentIndex] = sharpLength
+
+    for(i = 0; i < currentIndex; i++) {
+        printf("\t")
+    }
+    printf("* [%s](#%s)\n", $0, $0)
+}' > ${output}
+
+seq='================='
+
+if grep -q "^${seq}$" ${input};then
+    echo >> ${output}
+    cat $1 | awk '{
+        if(match($0, /^=================$/)) {
+            start=1;
+        }
+        if(start == 1) {
+            print $0
+        }
+    }' >> ${output}
+else
+    echo >> ${output}
+    echo ${seq} >> ${output}
+    echo  >> ${output}
+    cat $input >> ${output}
+fi
+
+mv ${output} ${input}
