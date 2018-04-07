@@ -35,18 +35,18 @@ cat ${input} | awk '/^#+.*/ {
     printf("* [%s](#%s)\n", $0, $0)
 }' > ${output}
 
-seq='================='
+seq='-----------------'
 
 if grep -q "^${seq}$" ${input};then
     echo >> ${output}
-    cat $1 | awk '{
-        if(match($0, /^=================$/)) {
+    cat ${input} | awk "{
+        if(match(\$0, /^${seq}$/)) {
             start=1;
         }
         if(start == 1) {
-            print $0
+            print \$0
         }
-    }' >> ${output}
+    }" >> ${output}
 else
     echo >> ${output}
     echo ${seq} >> ${output}
